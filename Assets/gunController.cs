@@ -5,11 +5,18 @@ using UnityEngine;
 public class GunController : MonoBehaviour
 {
     Gyroscope gyro;
+    public GameObject emitter1;
+
 
     void Awake()
     {
         gyro = Input.gyro;
         gyro.enabled = true;
+    }
+    private void Start()
+    {
+        emitter1.SetActive(false);
+
     }
 
     void Update()
@@ -26,5 +33,15 @@ public class GunController : MonoBehaviour
 
         // Apply rotation to the object
         transform.rotation = newRotation;
+    }
+    public void startEmitter()
+    {
+        emitter1.SetActive(true);
+
+    }
+    public void stopEmitter()
+    {
+        emitter1.SetActive(false);
+
     }
 }
