@@ -84,7 +84,7 @@ public struct TreeGrid
             {
                 Vector2Int sampleGridPos = gridPos + new Vector2Int(i, j);
                 if (!InGrid(sampleGridPos) || !HasTrees(sampleGridPos)) continue;
-                foreach(int sampleTree in GetTrees(sampleGridPos))
+                foreach (int sampleTree in GetTrees(sampleGridPos))
                 {
                     Vector2 sampleTreePos = Tree2Pos(sampleTree);
                     if ((sampleTreePos - treePos).sqrMagnitude < distance * distance && sampleTree != treeIndex)
@@ -95,6 +95,28 @@ public struct TreeGrid
             }
         }
         return neighbours;
+    }
+
+    // Only correct if there are trees in the nearest neighbouring cell,
+    // more complicated implementation for full correctness but should work well enough for our density
+    // Make sure to keep cellSize > poissonDiskRadius at least
+    public int GetNearestTree(int treeIndex)
+    {
+        Vector2 treePos = Tree2Pos(treeIndex);
+        List<int> neighbours = GetDirectNeighbours(treeIndex);
+        float minDist = float.MaxValue;
+        int nn = -1;
+        foreach (int n in neighbours)
+        {
+            Vector2 nPos = Tree2Pos(n);
+            float distSq = (treePos - nPos).sqrMagnitude;
+            if (distSq < minDist * minDist)
+            {
+                minDist = Mathf.Sqrt(distSq);
+                nn = n;
+            }
+        }
+        return nn;
     }
 
     public Vector2 Tree2NormPos(int treeIndex)
