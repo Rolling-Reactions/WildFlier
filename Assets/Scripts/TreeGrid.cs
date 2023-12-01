@@ -6,11 +6,10 @@ using UnityEngine;
 [System.Serializable]
 public struct TreeGrid
 {
-    TerrainData td;
-    float cellSize;
-    Vector2Int gridDims;
-    Vector2Int gridSizeP1;
-    List<int>[,] grid;
+    public TerrainData td;
+    public float cellSize;
+    public Vector2Int gridDims;
+    public List<int>[,] grid;
 
 
     public TreeGrid(TerrainData td, float cellSize)
@@ -18,7 +17,6 @@ public struct TreeGrid
         this.td = td;
         this.cellSize = cellSize;
         gridDims = Vector2Int.CeilToInt(new Vector2(td.size.x, td.size.z) / cellSize);
-        gridSizeP1 = gridDims + Vector2Int.one;
         grid = new List<int>[gridDims.x, gridDims.y];
 
         for (int i = 0; i < td.treeInstanceCount; i++)
@@ -31,6 +29,10 @@ public struct TreeGrid
         }
     }
 
+    public bool HasTrees(Vector2Int gridPos)
+    {
+        return grid[gridPos.x, gridPos.y] != null;
+    }
     public List<int> GetTrees(Vector2Int gridPos)
     {
         return grid[gridPos.x, gridPos.y];
@@ -50,7 +52,7 @@ public struct TreeGrid
     {
         Vector2Int gridPos = Tree2Grid(treeIndex);
         // Make capacity large enough so we hopefully don't need to resize list
-        List<int> neighbours = new List<int>(2 * td.treeInstanceCount / (gridDims.x * gridDims.y));
+        List<int> neighbours = new List<int>(9 * td.treeInstanceCount / (gridDims.x * gridDims.y));
 
         for (int j = -1; j <= 1; j++)
         {
@@ -68,26 +70,24 @@ public struct TreeGrid
         return neighbours;
     }
 
-    public List<int> GetTreeWithinDistance(int treeIndex, float distance)
+    public List<int> GetTreesWithinDistance(int treeIndex, float distance)
     {
         Vector2 treePos = Tree2Pos(treeIndex);
         Vector2Int gridPos = Tree2Grid(treeIndex);
         int searchMax = Mathf.CeilToInt(distance / cellSize);
         // Make capacity large enough so we hopefully don't need to resize list
-        List<int> neighbours = new List<int>(2 * td.treeInstanceCount / (gridDims.x * gridDims.y));
+        List<int> neighbours = new List<int>((searchMax + 1) * (searchMax + 1) * td.treeInstanceCount / (gridDims.x * gridDims.y));
 
-        neighbours.AddRange(GetTrees(gridPos));
-        neighbours.Remove(treeIndex);
         for (int j = -searchMax; j <= searchMax; j++)
         {
             for (int i = -searchMax; i <= searchMax; i++)
             {
                 Vector2Int sampleGridPos = gridPos + new Vector2Int(i, j);
-                if (!InGrid(sampleGridPos)) continue;
+                if (!InGrid(sampleGridPos) || !HasTrees(sampleGridPos)) continue;
                 foreach(int sampleTree in GetTrees(sampleGridPos))
                 {
                     Vector2 sampleTreePos = Tree2Pos(sampleTree);
-                    if ((sampleTreePos - treePos).sqrMagnitude > distance * distance)
+                    if ((sampleTreePos - treePos).sqrMagnitude < distance * distance && sampleTree != treeIndex)
                     {
                         neighbours.Add(sampleTree);
                     }
@@ -97,15 +97,18 @@ public struct TreeGrid
         return neighbours;
     }
 
+    public Vector2 Tree2NormPos(int treeIndex)
+    {
+        return new Vector2(td.treeInstances[treeIndex].position.x, td.treeInstances[treeIndex].position.z);
+    }
+
     public Vector2 Tree2Pos(int treeIndex)
     {
-        Vector2 normPos = td.treeInstances[treeIndex].position;
-        return normPos * new Vector2(td.size.x, td.size.z);
+        return Tree2NormPos(treeIndex) * new Vector2(td.size.x, td.size.z);
     }
 
     public Vector2Int Tree2Grid(int treeIndex)
     {
-        Vector2 normPos = td.treeInstances[treeIndex].position;
-        return Vector2Int.FloorToInt(normPos * (Vector2)gridDims);
+        return Vector2Int.FloorToInt(Tree2NormPos(treeIndex) * (Vector2)gridDims);
     }
 }
