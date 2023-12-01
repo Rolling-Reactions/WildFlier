@@ -6,21 +6,9 @@ using UnityEngine;
 [System.Serializable]
 public struct TreeGrid
 {
-    public static readonly Vector2Int[] neighbourOffsets =
-    {
-        new Vector2Int(1,0),
-        new Vector2Int(1,1),
-        new Vector2Int(0, 1),
-        new Vector2Int(-1,1),
-        new Vector2Int(-1,0),
-        new Vector2Int(-1,-1),
-        new Vector2Int(0,-1),
-        new Vector2Int(1,-1)
-
-    };
     TerrainData td;
     float cellSize;
-    Vector2Int gridSize;
+    Vector2Int gridDims;
     Vector2Int gridSizeP1;
     List<int>[,] grid;
 
@@ -29,9 +17,9 @@ public struct TreeGrid
     {
         this.td = td;
         this.cellSize = cellSize;
-        gridSize = Vector2Int.CeilToInt(new Vector2(td.size.x, td.size.z) / cellSize);
-        gridSizeP1 = gridSize + Vector2Int.one;
-        grid = new List<int>[gridSize.x, gridSize.y];
+        gridDims = Vector2Int.CeilToInt(new Vector2(td.size.x, td.size.z) / cellSize);
+        gridSizeP1 = gridDims + Vector2Int.one;
+        grid = new List<int>[gridDims.x, gridDims.y];
 
         for (int i = 0; i < td.treeInstanceCount; i++)
         {
@@ -53,25 +41,71 @@ public struct TreeGrid
         return grid[gridPos.x, gridPos.y].Count;
     }
 
-    public List<int> GetNeighbours(int treeIndex)
+    private bool InGrid(Vector2Int gridPos)
+    {
+        return gridPos.x >= 0 && gridPos.y >= 0 && gridPos.x < gridDims.x && gridPos.y < gridDims.y;
+    }
+
+    public List<int> GetDirectNeighbours(int treeIndex)
     {
         Vector2Int gridPos = Tree2Grid(treeIndex);
         // Make capacity large enough so we hopefully don't need to resize list
-        List<int> neighbours = new List<int>(2 * td.treeInstanceCount / (gridSize.x * gridSize.y));
+        List<int> neighbours = new List<int>(2 * td.treeInstanceCount / (gridDims.x * gridDims.y));
 
-        neighbours.AddRange(GetTrees(gridPos));
-        neighbours.Remove(treeIndex);
-        foreach (var no in neighbourOffsets)
+        for (int j = -1; j <= 1; j++)
         {
-            neighbours.AddRange(GetTrees(gridPos + no));
+            for (int i = -1; i <= 1; i++)
+            {
+                Vector2Int sampleGridPos = gridPos + new Vector2Int(i, j);
+                if (!InGrid(sampleGridPos)) continue;
+                neighbours.AddRange(GetTrees(sampleGridPos));
+                if (i == 0 && j == 0)
+                {
+                    neighbours.Remove(treeIndex);
+                }
+            }
         }
         return neighbours;
     }
 
+    public List<int> GetTreeWithinDistance(int treeIndex, float distance)
+    {
+        Vector2 treePos = Tree2Pos(treeIndex);
+        Vector2Int gridPos = Tree2Grid(treeIndex);
+        int searchMax = Mathf.CeilToInt(distance / cellSize);
+        // Make capacity large enough so we hopefully don't need to resize list
+        List<int> neighbours = new List<int>(2 * td.treeInstanceCount / (gridDims.x * gridDims.y));
+
+        neighbours.AddRange(GetTrees(gridPos));
+        neighbours.Remove(treeIndex);
+        for (int j = -searchMax; j <= searchMax; j++)
+        {
+            for (int i = -searchMax; i <= searchMax; i++)
+            {
+                Vector2Int sampleGridPos = gridPos + new Vector2Int(i, j);
+                if (!InGrid(sampleGridPos)) continue;
+                foreach(int sampleTree in GetTrees(sampleGridPos))
+                {
+                    Vector2 sampleTreePos = Tree2Pos(sampleTree);
+                    if ((sampleTreePos - treePos).sqrMagnitude > distance * distance)
+                    {
+                        neighbours.Add(sampleTree);
+                    }
+                }
+            }
+        }
+        return neighbours;
+    }
+
+    public Vector2 Tree2Pos(int treeIndex)
+    {
+        Vector2 normPos = td.treeInstances[treeIndex].position;
+        return normPos * new Vector2(td.size.x, td.size.z);
+    }
+
     public Vector2Int Tree2Grid(int treeIndex)
     {
-        Vector3 pos = td.treeInstances[treeIndex].position;
-        Vector2 normPos = new Vector2(pos.x, pos.y) / new Vector2(td.size.x, td.size.z);
-        return Vector2Int.FloorToInt(normPos * (Vector2)gridSize);
+        Vector2 normPos = td.treeInstances[treeIndex].position;
+        return Vector2Int.FloorToInt(normPos * (Vector2)gridDims);
     }
 }

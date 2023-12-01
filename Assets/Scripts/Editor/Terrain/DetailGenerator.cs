@@ -277,7 +277,7 @@ public class DetailGenerator : EditorWindow
         return Vector2Int.FloorToInt(normPos * poissonGridDims);
     }
 
-    private bool inPoissonGrid(Vector2Int gridPos)
+    private bool InPoissonGrid(Vector2Int gridPos)
     {
         return gridPos.x >= 0 && gridPos.y >= 0 && gridPos.x < poissonGridDims.x && gridPos.y < poissonGridDims.y;
     }
@@ -291,7 +291,7 @@ public class DetailGenerator : EditorWindow
             for (int i = -2; i <= 2; i++)
             {
                 Vector2Int sampleGridPos = gridPos + new Vector2Int(i, j);
-                if (!inPoissonGrid(sampleGridPos)) continue;
+                if (!InPoissonGrid(sampleGridPos)) continue;
 
                 int treeidx = grid[sampleGridPos.x, sampleGridPos.y];
                 if (treeidx >= 0)
