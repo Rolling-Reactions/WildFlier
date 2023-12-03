@@ -24,6 +24,7 @@ public struct TreeOptions
 
     [Range(0.0f, 1.0f)]
     public float alphaThresh;
+    public bool randomRotation;
     public float minHeightScale;
     public float maxHeightScale;
 }
@@ -202,7 +203,7 @@ public class DetailGenerator : EditorWindow
             position = new Vector3(normPos.x, 0, normPos.y),
             widthScale = scale,
             heightScale = scale,
-            rotation = Random.value * Mathf.PI,
+            rotation = to.randomRotation ? Random.value * Mathf.PI : 0.0f,
             prototypeIndex = pindex
         };
 
