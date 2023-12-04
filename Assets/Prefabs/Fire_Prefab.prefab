@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 9091389389493758443}
   - component: {fileID: 8630649589846650365}
   - component: {fileID: 8804174422756486389}
+  - component: {fileID: 3764366220304431641}
+  - component: {fileID: 6680850526881545818}
   m_Layer: 0
   m_Name: Fire_Prefab
   m_TagString: Untagged
@@ -4829,6 +4831,45 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &3764366220304431641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2711317697429859945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45c7373f3f260d342aab5dc22fa1ba07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  td: {fileID: 0}
+  treeIndex: 0
+  spreadTime: 0
+  destroyTime: 0
+--- !u!136 &6680850526881545818
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2711317697429859945}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 3
+  m_Height: 15
+  m_Direction: 2
+  m_Center: {x: 0, y: 0, z: 7.5}
 --- !u!1 &7083149144977675418
 GameObject:
   m_ObjectHideFlags: 0
@@ -9668,7 +9709,6 @@ GameObject:
   - component: {fileID: 3437262540802445398}
   - component: {fileID: 7797146654161204806}
   - component: {fileID: 1551267556215364761}
-  - component: {fileID: 5981783494857820421}
   m_Layer: 0
   m_Name: Fire_ParticleSystem (1)
   m_TagString: Untagged
@@ -14487,16 +14527,3 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
---- !u!114 &5981783494857820421
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8550732997953672374}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 45c7373f3f260d342aab5dc22fa1ba07, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  terrainData: {fileID: 0}

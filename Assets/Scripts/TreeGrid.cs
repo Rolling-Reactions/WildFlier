@@ -41,13 +41,13 @@ public struct TreeGrid
         }
     }
 
-    TreeStatus GetTreeStatus(int treeIndex) { return treeStatus[treeIndex]; }
-    bool IsHealthy(int treeIndex) { return treeStatus[treeIndex] == TreeStatus.Healthy; }
-    bool IsBurning(int treeIndex) { return treeStatus[treeIndex] == TreeStatus.Burning; }
-    bool IsDead(int treeIndex) { return treeStatus[treeIndex] == TreeStatus.Dead; }
-    void SetHealthy(int treeIndex) { treeStatus[treeIndex] = TreeStatus.Healthy; }
-    void SetBurning(int treeIndex) { treeStatus[treeIndex] = TreeStatus.Burning; }
-    void SetDead(int treeIndex) {
+    public TreeStatus GetTreeStatus(int treeIndex) { return treeStatus[treeIndex]; }
+    public bool IsHealthy(int treeIndex) { return treeStatus[treeIndex] == TreeStatus.Healthy; }
+    public bool IsBurning(int treeIndex) { return treeStatus[treeIndex] == TreeStatus.Burning; }
+    public bool IsDead(int treeIndex) { return treeStatus[treeIndex] == TreeStatus.Dead; }
+    public void SetHealthy(int treeIndex) { treeStatus[treeIndex] = TreeStatus.Healthy; }
+    public void SetBurning(int treeIndex) { treeStatus[treeIndex] = TreeStatus.Burning; }
+    public void SetDead(int treeIndex) {
         treeStatus[treeIndex] = TreeStatus.Dead;
 
         TreeInstance ti = td.treeInstances[treeIndex];

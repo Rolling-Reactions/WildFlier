@@ -1,77 +1,77 @@
-//// td.GetTreeInstances
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-//using System.Collections;
-//using System.Collections.Generic;
-//using UnityEngine;
+public class FireBehaviourScript : MonoBehaviour
+{
+    private enum FireState
+    {
+        Started, Spread
+    }
 
-//public class FireBehaviourScript : MonoBehaviour
-//{
-//    public TerrainData terrainData;
-//    private TreeInstance[] trees;
-//    private bool[] isTreeOnFire;
+    public TerrainData td;
+    public TreeGrid tg;
+    // make sure this is set on instantiation, before Start()
+    public int treeIndex;
 
-//    // Start is called before the first frame update
-//    void Start() 
-//    {
-//        trees = terrainData.treeInstances;
-//        isTreeOnFire = new bool[trees.Length];
+    public static float minSpreadTime = 10.0f;
+    public static float maxSpreadTime = 20.0f;
+    public float spreadTime;
 
-//        // Choose a random tree to start the fire
-//        int randomTree = Random.Range(0, trees.Length);
-//        StartFire(randomTree);
-//    }
+    public static float minDestroyTime = 20.0f;
+    public static float maxDestroyTime = 30.0f;
+    public float destroyTime;
 
-//    // Update is called once per frame
-//    void Update()
-//    {
-//        // Check for spreading fire
-//        for (int i = 0; i < trees.Length; i++)
-//        {
-//            if (isTreeOnFire[i])
-//            {
-//                // SpreadFire(i);
-//            }
-//        }
-//    }
+    private float startTime;
+    private FireState state;
 
-//    void StartFire(int treeIndex)
-//    {
-//        isTreeOnFire[treeIndex] = true;
+    public static float maxSpreadDistance = 15.0f;
 
-//        trees[treeIndex].color = Color.red; // You can change the tree color to represent it's on fire
-//        StartCoroutine(SpreadFireAfterDelay(treeIndex, 10f)); // Spread fire after 10 seconds
-//    }
+    void Start()
+    {
+        gameObject.name = "Fire (tree " + treeIndex + ")";
+        transform.position = tg.Tree2Pos(treeIndex);
+        spreadTime = Random.Range(minSpreadTime, maxSpreadTime);
+        destroyTime = Random.Range(Mathf.Max(spreadTime, minDestroyTime), maxDestroyTime);
 
-//    /*
-//    void SpreadFire(int sourceTreeIndex)
-//    {
-//        Vector3 sourcePosition = terrainData.GetTreeInstancePosition(sourceTreeIndex);
+        startTime = Time.time;
+        state = FireState.Started;
+        tg.SetBurning(treeIndex);
+}
 
-//        for (int i = 0; i < trees.Length; i++)
-//        {
-//            if (i != sourceTreeIndex && !isTreeOnFire[i])
-//            {
-//                Vector3 targetPosition = terrainData.GetTreeInstancePosition(i);
-//                float distance = Vector3.Distance(sourcePosition, targetPosition);
+    // Update is called once per frame
+    void Update()
+    {
+        float elapsedTime = Time.time - startTime;
+        if(state == FireState.Started && elapsedTime > spreadTime)
+        {
+            SpreadFire();
+        } else if(state == FireState.Spread && elapsedTime > destroyTime)
+        {
+            DestroyFire();
+        }
+    }
 
-//                // Check if the tree is within the specified radius
-//                if (distance <= 5f)
-//                {
-//                    // Probability of catching fire can be adjusted
-//                    if (Random.Range(0f, 1f) < 0.1f)
-//                    {
-//                        StartFire(i);
-//                    }
-//                }
-//            }
-//        }
-//    }*/
+    void SpreadFire()
+    {
+        // spread fire to next tree if it is Alive and close enough
+        // Do we want to spread to only one tree are all trees within maxSpreadDistance?
+        // Maybe we can have some randomness in spreading
+        Debug.Log("Spreading");
+        state = FireState.Spread;
+    }
 
-//    IEnumerator SpreadFireAfterDelay(int treeIndex, float delay)
-//    {
-//        yield return new WaitForSeconds(delay);
-//        SpreadFire(treeIndex);
-//    }
-//}
+    void DestroyFire()
+    {
+        Debug.Log("Destruction");
+        tg.SetDead(treeIndex);
+        Destroy(gameObject);
+    }
 
-///**/
+    // Use this for water collision
+    private void OnCollisionEnter(Collision collision)
+    {
+        DestroyFire();
+    }
+}
+/**/
