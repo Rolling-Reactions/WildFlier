@@ -14,13 +14,13 @@ public class TreeGridTest : MonoBehaviour
     {
         tg = new TreeGrid(td, cellSize);
 
-        Vector2 pos = tg.Tree2Pos(treeIndex);
+        Vector2 pos = tg.Tree2Pos2D(treeIndex);
         Debug.LogFormat("Start pos: {0}", pos);
         List<int> nei0 = tg.GetTreesWithinDistance(treeIndex, neighbourDist);
         Debug.LogFormat("Neighbour count: {0}", nei0.Count);
         foreach(int nei in nei0)
         {
-            Debug.LogFormat("{0} : {1}", nei, Vector2.Distance(pos, tg.Tree2Pos(nei)));
+            Debug.LogFormat("{0} : {1}", nei, Vector2.Distance(pos, tg.Tree2Pos2D(nei)));
         }
     }    
 }
