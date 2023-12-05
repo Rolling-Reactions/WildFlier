@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class FireBehaviourScript : MonoBehaviour
 {
+    public GameObject firePrefab;
+    public List<GameObject> spawnedObjects = new List<GameObject>();
+
+
     private enum FireState
     {
         Started, Spread
@@ -57,8 +61,29 @@ public class FireBehaviourScript : MonoBehaviour
         // spread fire to next tree if it is Alive and close enough
         // Do we want to spread to only one tree are all trees within maxSpreadDistance?
         // Maybe we can have some randomness in spreading
+        //List<int> treeList = tg.GetDirectNeighbours(treeIndex);
+        List <int> trees = tg.GetDirectNeighbours(treeIndex);
         Debug.Log("Spreading");
+
+        foreach (int treeIndex in trees)
+        {
+            if (tg.IsHealthy(treeIndex)) { 
+                transform.position = tg.Tree2Pos(treeIndex);
+                GameObject nextfire = Instantiate(firePrefab);
+                Debug.Log("Tree burning: " + transform.position);
+                nextfire.GetComponent<FireBehaviourScript>().treeIndex = treeIndex;
+                nextfire.GetComponent<FireBehaviourScript>().td = td;
+                nextfire.GetComponent<FireBehaviourScript>().tg = tg;
+                tg.SetBurning(treeIndex);
+            }
+        }
         state = FireState.Spread;
+
+
+
+
+
+
     }
 
     void DestroyFire()

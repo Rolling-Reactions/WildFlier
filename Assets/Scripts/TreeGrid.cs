@@ -86,6 +86,7 @@ public struct TreeGrid
             {
                 Vector2Int sampleGridPos = gridPos + new Vector2Int(i, j);
                 if (!InGrid(sampleGridPos)) continue;
+                if (GetTrees(sampleGridPos) == null) continue;
                 neighbours.AddRange(GetTrees(sampleGridPos));
                 if (i == 0 && j == 0)
                 {
