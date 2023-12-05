@@ -3,13 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-[System.Serializable]
+public enum TreeStatus
+{
+    Healthy, Burning, Dead
+}
+
 public struct TreeGrid
 {
-    public TerrainData td;
-    public float cellSize;
-    public Vector2Int gridDims;
-    public List<int>[,] grid;
+    private TerrainData td;
+    private float cellSize;
+    private Vector2Int gridDims;
+    private List<int>[,] grid;
+    private TreeStatus[] treeStatus;
 
 
     public TreeGrid(TerrainData td, float cellSize)
@@ -18,9 +23,11 @@ public struct TreeGrid
         this.cellSize = cellSize;
         gridDims = Vector2Int.CeilToInt(new Vector2(td.size.x, td.size.z) / cellSize);
         grid = new List<int>[gridDims.x, gridDims.y];
+        treeStatus = new TreeStatus[td.treeInstanceCount];
 
         for (int i = 0; i < td.treeInstanceCount; i++)
         {
+            treeStatus[i] = TreeStatus.Healthy;
             Vector2Int gridPos = Tree2Grid(i);
             if (grid[gridPos.x, gridPos.y] == null)
                 grid[gridPos.x, gridPos.y] = new List<int>();
@@ -28,6 +35,14 @@ public struct TreeGrid
             grid[gridPos.x, gridPos.y].Add(i);
         }
     }
+
+    TreeStatus GetTreeStatus(int treeIndex) { return treeStatus[treeIndex]; }
+    bool IsHealthy(int treeIndex) { return treeStatus[treeIndex] == TreeStatus.Healthy; }
+    bool IsBurning(int treeIndex) { return treeStatus[treeIndex] == TreeStatus.Burning; }
+    bool IsDead(int treeIndex) { return treeStatus[treeIndex] == TreeStatus.Dead; }
+    void SetHealthy(int treeIndex) { treeStatus[treeIndex] = TreeStatus.Healthy; }
+    void SetBurning(int treeIndex) { treeStatus[treeIndex] = TreeStatus.Burning; }
+    void SetDead(int treeIndex) { treeStatus[treeIndex] = TreeStatus.Dead; }
 
     public bool HasTrees(Vector2Int gridPos)
     {
