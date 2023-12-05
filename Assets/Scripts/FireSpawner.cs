@@ -19,8 +19,6 @@ public class FireSpawner : MonoBehaviour
         int randomTree = Random.Range(0, trees.Length);
         GameObject fire = Instantiate(firePrefab);
         fire.transform.position = Vector3.Scale(terrainData.GetTreeInstance(randomTree).position, terrainData.size);
-
-
     }
 
     // Update is called once per frame
