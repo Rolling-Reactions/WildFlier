@@ -7,9 +7,6 @@ public class FireBehaviourScript : MonoBehaviour
     public GameObject firePrefab;
     public GameObject deadTree;
 
-    public List<GameObject> spawnedObjects = new List<GameObject>();
-
-
     private enum FireState
     {
         Started, Spread
@@ -54,8 +51,7 @@ public class FireBehaviourScript : MonoBehaviour
             SpreadFire();
         } else if(state == FireState.Spread && elapsedTime > destroyTime)
         {
-            DestroyFire();
-
+            SetTreeDead();
         }
     }
 
@@ -66,15 +62,12 @@ public class FireBehaviourScript : MonoBehaviour
         // Maybe we can have some randomness in spreading
         //List<int> treeList = tg.GetDirectNeighbours(treeIndex);
         List <int> trees = tg.GetDirectNeighbours(treeIndex);
-        Debug.Log("Spreading");
-
 
         for (int i = 0; i < trees.Count; i += 2)
         {
             if (tg.IsHealthy(trees[i])) { 
                 transform.position = tg.Tree2Pos(trees[i]);
-                GameObject nextfire = Instantiate(firePrefab);
-                Debug.Log("Tree burning: " + transform.position);
+                GameObject nextfire = Instantiate(firePrefab, transform.parent);
                 nextfire.GetComponent<FireBehaviourScript>().treeIndex = trees[i];
                 nextfire.GetComponent<FireBehaviourScript>().td = td;
                 nextfire.GetComponent<FireBehaviourScript>().tg = tg;
@@ -82,23 +75,21 @@ public class FireBehaviourScript : MonoBehaviour
             }
         }
         state = FireState.Spread;
-
-
-
-
-
-
     }
 
     void DestroyFire()
     {
-        Debug.Log("Destruction");
+        Destroy(gameObject);  
+    }
+
+    void SetTreeDead()
+    {
         tg.SetDead(treeIndex);
-        Destroy(gameObject);
-        GameObject burnedTree = Instantiate(deadTree);
+        GameObject burnedTree = Instantiate(deadTree, transform.parent);
         burnedTree.transform.position = tg.Tree2Pos(treeIndex);
         burnedTree.transform.rotation = Quaternion.Euler(0, td.GetTreeInstance(treeIndex).rotation, 0);
-
+        
+        DestroyFire();
     }
 
     // Use this for water collision

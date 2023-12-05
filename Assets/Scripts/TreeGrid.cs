@@ -50,13 +50,10 @@ public struct TreeGrid
     public void SetDead(int treeIndex) {
         treeStatus[treeIndex] = TreeStatus.Dead;
 
-        //TreeInstance ti = td.treeInstances[treeIndex];
-        //ti.prototypeIndex = (int) TreePrototypesIndex.Dead;
-        //td.treeInstances[treeIndex] = ti;
-
+        // We cannot set prototypeIndex so we just set height to 0 to make it invisible,
+        // and replace it with dead tree prefab in the script that calls this
         TreeInstance ti = td.GetTreeInstance(treeIndex);
         ti.heightScale = 0;
-        //ti.prototypeIndex = (int)TreePrototypesIndex.Dead;
         td.SetTreeInstance(treeIndex, ti);
     }
 
