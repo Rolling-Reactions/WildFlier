@@ -1,16 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class FireBehaviourScript : MonoBehaviour
 {
     public GameObject firePrefab;
     public GameObject deadTree;
-
-    private enum FireState
-    {
-        Started, Spread
-    }
 
     public TerrainData td;
     public TreeGrid tg;
@@ -19,67 +15,79 @@ public class FireBehaviourScript : MonoBehaviour
 
     public static float minSpreadTime = 3.0f;
     public static float maxSpreadTime = 6.0f;
-    public float spreadTime;
 
     public static float minDestroyTime = 6.0f;
     public static float maxDestroyTime = 9.0f;
     public float destroyTime;
 
     private float startTime;
-    private FireState state;
 
     public static float maxSpreadDistance = 15.0f;
+
+    private List<int> treesToSpread;
+    private List<float> spreadTimes;
+    private int currSpreadIdx = 0;
 
     void Start()
     {
         gameObject.name = "Fire (tree " + treeIndex + ")";
         transform.position = tg.Tree2Pos(treeIndex);
-        spreadTime = Random.Range(minSpreadTime, maxSpreadTime);
-        destroyTime = Random.Range(Mathf.Max(spreadTime, minDestroyTime), maxDestroyTime);
+        destroyTime = Random.Range(minDestroyTime, maxDestroyTime);
 
         startTime = Time.time;
-        state = FireState.Started;
         tg.SetBurning(treeIndex);
-}
+
+        treesToSpread = tg.GetTreesWithinDistance(treeIndex, maxSpreadDistance);
+        spreadTimes = new List<float>();
+        spreadTimes.Capacity = treesToSpread.Count;
+        foreach (int tree in treesToSpread)
+        {
+            spreadTimes.Add(Random.Range(minSpreadTime, maxSpreadTime));
+        }
+
+        treesToSpread = treesToSpread.OrderBy(t => spreadTimes.IndexOf(t)).ToList();
+        spreadTimes.Sort();
+    }
 
     // Update is called once per frame
     void Update()
     {
         float elapsedTime = Time.time - startTime;
-        if(state == FireState.Started && elapsedTime > spreadTime)
+        if (elapsedTime > minSpreadTime && elapsedTime < maxSpreadTime)
         {
-            SpreadFire();
-        } else if(state == FireState.Spread && elapsedTime > destroyTime)
+            while (currSpreadIdx < spreadTimes.Count && elapsedTime > spreadTimes[currSpreadIdx])
+            {
+                SpreadFire(treesToSpread[currSpreadIdx]);
+                currSpreadIdx++;
+            }
+        }
+        else if (elapsedTime > destroyTime)
         {
             SetTreeDead();
         }
     }
 
-    void SpreadFire()
+    // Spread fire to tree index
+    void SpreadFire(int index)
     {
         // spread fire to next tree if it is Alive and close enough
         // Do we want to spread to only one tree are all trees within maxSpreadDistance?
         // Maybe we can have some randomness in spreading
         //List<int> treeList = tg.GetDirectNeighbours(treeIndex);
-        List <int> trees = tg.GetDirectNeighbours(treeIndex);
 
-        for (int i = 0; i < trees.Count; i += 2)
+        if (tg.IsHealthy(index))
         {
-            if (tg.IsHealthy(trees[i])) { 
-                transform.position = tg.Tree2Pos(trees[i]);
-                GameObject nextfire = Instantiate(firePrefab, transform.parent);
-                nextfire.GetComponent<FireBehaviourScript>().treeIndex = trees[i];
-                nextfire.GetComponent<FireBehaviourScript>().td = td;
-                nextfire.GetComponent<FireBehaviourScript>().tg = tg;
-                tg.SetBurning(trees[i]);
-            }
+            GameObject nextfire = Instantiate(firePrefab, transform.parent);
+            nextfire.GetComponent<FireBehaviourScript>().treeIndex = index;
+            nextfire.GetComponent<FireBehaviourScript>().td = td;
+            nextfire.GetComponent<FireBehaviourScript>().tg = tg;
+            tg.SetBurning(index);
         }
-        state = FireState.Spread;
     }
 
     void DestroyFire()
     {
-        Destroy(gameObject);  
+        Destroy(gameObject);
     }
 
     void SetTreeDead()
@@ -88,14 +96,18 @@ public class FireBehaviourScript : MonoBehaviour
         GameObject burnedTree = Instantiate(deadTree, transform.parent);
         burnedTree.transform.position = tg.Tree2Pos(treeIndex);
         burnedTree.transform.rotation = Quaternion.Euler(0, td.GetTreeInstance(treeIndex).rotation, 0);
-        
+
         DestroyFire();
     }
 
     // Use this for water collision
     private void OnCollisionEnter(Collision collision)
     {
-        DestroyFire();
+        if (collision.gameObject.layer == SortingLayer.GetLayerValueFromName("Water"))
+        {
+            tg.SetHealthy(treeIndex);
+            DestroyFire();
+        }
     }
 }
 /**/
