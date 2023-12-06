@@ -95,7 +95,7 @@ public class FireBehaviourScript : MonoBehaviour
         tg.SetDead(treeIndex);
         GameObject burnedTree = Instantiate(deadTree, transform.parent);
         burnedTree.transform.position = tg.Tree2Pos(treeIndex);
-        burnedTree.transform.rotation = Quaternion.Euler(0, td.GetTreeInstance(treeIndex).rotation, 0);
+        burnedTree.transform.rotation = Quaternion.Euler(90, td.GetTreeInstance(treeIndex).rotation, 0);
 
         DestroyFire();
     }

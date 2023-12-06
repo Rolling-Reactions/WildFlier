@@ -4844,11 +4844,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   firePrefab: {fileID: 2711317697429859945}
-  deadTree: {fileID: 5211505155274569943, guid: 36a4a49afcd2b7844ae71835f839b340, type: 3}
-  spawnedObjects: []
+  deadTree: {fileID: 8327351033739826988, guid: 2c57c46acb87e354e8c930a10ef640e7, type: 3}
   td: {fileID: 15600000, guid: ad24286fd5bf1834cb299d94fa1f400a, type: 2}
   treeIndex: 0
-  spreadTime: 0
   destroyTime: 0
 --- !u!136 &6680850526881545818
 CapsuleCollider:
