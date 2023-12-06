@@ -4844,7 +4844,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   firePrefab: {fileID: 2711317697429859945}
-  deadTree: {fileID: 8327351033739826988, guid: 2c57c46acb87e354e8c930a10ef640e7, type: 3}
+  deadTree: {fileID: 191266, guid: 65cf97976e5739845ba6063c1bf8aff4, type: 3}
   td: {fileID: 15600000, guid: ad24286fd5bf1834cb299d94fa1f400a, type: 2}
   treeIndex: 0
   destroyTime: 0
