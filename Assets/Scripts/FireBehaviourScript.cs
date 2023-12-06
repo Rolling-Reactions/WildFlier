@@ -5,6 +5,8 @@ using UnityEngine;
 public class FireBehaviourScript : MonoBehaviour
 {
     public GameObject firePrefab;
+    public GameObject deadTree;
+
     public List<GameObject> spawnedObjects = new List<GameObject>();
 
 
@@ -53,6 +55,7 @@ public class FireBehaviourScript : MonoBehaviour
         } else if(state == FireState.Spread && elapsedTime > destroyTime)
         {
             DestroyFire();
+
         }
     }
 
@@ -92,6 +95,10 @@ public class FireBehaviourScript : MonoBehaviour
         Debug.Log("Destruction");
         tg.SetDead(treeIndex);
         Destroy(gameObject);
+        GameObject burnedTree = Instantiate(deadTree);
+        burnedTree.transform.position = tg.Tree2Pos(treeIndex);
+        burnedTree.transform.rotation = Quaternion.Euler(0, td.GetTreeInstance(treeIndex).rotation, 0);
+
     }
 
     // Use this for water collision

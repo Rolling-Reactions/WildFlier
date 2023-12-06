@@ -50,13 +50,14 @@ public struct TreeGrid
     public void SetDead(int treeIndex) {
         treeStatus[treeIndex] = TreeStatus.Dead;
 
-        TreeInstance ti = td.treeInstances[treeIndex];
-        ti.prototypeIndex = (int) TreePrototypesIndex.Dead;
-        td.treeInstances[treeIndex] = ti;
+        //TreeInstance ti = td.treeInstances[treeIndex];
+        //ti.prototypeIndex = (int) TreePrototypesIndex.Dead;
+        //td.treeInstances[treeIndex] = ti;
 
-        //TreeInstance ti = td.GetTreeInstance(treeIndex);
+        TreeInstance ti = td.GetTreeInstance(treeIndex);
+        ti.heightScale = 0;
         //ti.prototypeIndex = (int)TreePrototypesIndex.Dead;
-        //td.SetTreeInstance(treeIndex, ti);
+        td.SetTreeInstance(treeIndex, ti);
     }
 
     public bool HasTrees(Vector2Int gridPos)
