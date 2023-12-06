@@ -18,12 +18,12 @@ public class FireBehaviourScript : MonoBehaviour
     // make sure this is set on instantiation, before Start()
     public int treeIndex;
 
-    public static float minSpreadTime = 10.0f;
-    public static float maxSpreadTime = 20.0f;
+    public static float minSpreadTime = 3.0f;
+    public static float maxSpreadTime = 6.0f;
     public float spreadTime;
 
-    public static float minDestroyTime = 20.0f;
-    public static float maxDestroyTime = 30.0f;
+    public static float minDestroyTime = 6.0f;
+    public static float maxDestroyTime = 9.0f;
     public float destroyTime;
 
     private float startTime;
@@ -65,16 +65,17 @@ public class FireBehaviourScript : MonoBehaviour
         List <int> trees = tg.GetDirectNeighbours(treeIndex);
         Debug.Log("Spreading");
 
-        foreach (int treeIndex in trees)
+
+        for (int i = 0; i < trees.Count; i += 2)
         {
-            if (tg.IsHealthy(treeIndex)) { 
-                transform.position = tg.Tree2Pos(treeIndex);
+            if (tg.IsHealthy(trees[i])) { 
+                transform.position = tg.Tree2Pos(trees[i]);
                 GameObject nextfire = Instantiate(firePrefab);
                 Debug.Log("Tree burning: " + transform.position);
-                nextfire.GetComponent<FireBehaviourScript>().treeIndex = treeIndex;
+                nextfire.GetComponent<FireBehaviourScript>().treeIndex = trees[i];
                 nextfire.GetComponent<FireBehaviourScript>().td = td;
                 nextfire.GetComponent<FireBehaviourScript>().tg = tg;
-                tg.SetBurning(treeIndex);
+                tg.SetBurning(trees[i]);
             }
         }
         state = FireState.Spread;

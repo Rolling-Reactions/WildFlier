@@ -53,6 +53,10 @@ public struct TreeGrid
         TreeInstance ti = td.treeInstances[treeIndex];
         ti.prototypeIndex = (int) TreePrototypesIndex.Dead;
         td.treeInstances[treeIndex] = ti;
+
+        //TreeInstance ti = td.GetTreeInstance(treeIndex);
+        //ti.prototypeIndex = (int)TreePrototypesIndex.Dead;
+        //td.SetTreeInstance(treeIndex, ti);
     }
 
     public bool HasTrees(Vector2Int gridPos)
