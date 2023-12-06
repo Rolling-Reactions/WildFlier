@@ -509,6 +509,10 @@ PrefabInstance:
       propertyPath: m_TerrainData
       value: 
       objectReference: {fileID: 15600000, guid: ad24286fd5bf1834cb299d94fa1f400a, type: 2}
+    - target: {fileID: 9131207252897829376, guid: 1e9a3a1deac31814ba72eaa82e70cf20, type: 3}
+      propertyPath: m_EnableTreeColliders
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

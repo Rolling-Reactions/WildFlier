@@ -28,6 +28,9 @@ public class FireBehaviourScript : MonoBehaviour
     private List<float> spreadTimes;
     private int currSpreadIdx = 0;
 
+    private const int burntTerrainLayer = 4;
+    private const int burnExtents = 2;
+
     void Start()
     {
         gameObject.name = "Fire (tree " + treeIndex + ")";
@@ -94,8 +97,23 @@ public class FireBehaviourScript : MonoBehaviour
     {
         tg.SetDead(treeIndex);
         GameObject burnedTree = Instantiate(deadTree, transform.parent);
-        burnedTree.transform.position = tg.Tree2Pos(treeIndex);
-        burnedTree.transform.rotation = Quaternion.Euler(90, td.GetTreeInstance(treeIndex).rotation, 0);
+        burnedTree.transform.SetPositionAndRotation(tg.Tree2Pos(treeIndex), Quaternion.Euler(90, td.GetTreeInstance(treeIndex).rotation, 0));
+
+        // use rock terrainlayer for burnt
+        Vector2Int alphamapCoord = Vector2Int.FloorToInt(tg.Tree2NormPos2D(treeIndex) * td.alphamapResolution);
+        int burnXPlus = Mathf.Min(burnExtents, (td.alphamapResolution - 1) - alphamapCoord.x);
+        int burnXMinus = Mathf.Min(burnExtents, alphamapCoord.x);
+        int burnYPlus = Mathf.Min(burnExtents, (td.alphamapResolution - 1) - alphamapCoord.y);
+        int burnYMinus = Mathf.Min(burnExtents, alphamapCoord.y);
+        float[,,] modifiedAlphamap = td.GetAlphamaps(alphamapCoord.x - burnXMinus, alphamapCoord.y - burnYMinus, burnXMinus + burnXPlus + 1, burnYMinus + burnYPlus + 1);
+        for (int j = -burnYMinus; j <= burnYPlus; j++)
+        {
+            for (int i = -burnXMinus; i <= burnXPlus; i++)
+            {
+                modifiedAlphamap[i + burnXMinus, j + burnYMinus, burntTerrainLayer] += 1.75f / Mathf.Abs(i + j);
+            }
+        }
+        td.SetAlphamaps(alphamapCoord.x - burnXMinus, alphamapCoord.y - burnYMinus, modifiedAlphamap);
 
         DestroyFire();
     }
