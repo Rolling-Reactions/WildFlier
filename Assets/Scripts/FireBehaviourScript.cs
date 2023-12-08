@@ -13,11 +13,11 @@ public class FireBehaviourScript : MonoBehaviour
     // make sure this is set on instantiation, before Start()
     public int treeIndex;
 
-    public static float minSpreadTime = 3.0f;
-    public static float maxSpreadTime = 6.0f;
+    public static float minSpreadTime = 5.0f;
+    public static float maxSpreadTime = 15.0f;
 
-    public static float minDestroyTime = 6.0f;
-    public static float maxDestroyTime = 9.0f;
+    public static float minDestroyTime = maxSpreadTime;
+    public static float maxDestroyTime = 15.0f;
     public float destroyTime;
 
     private float startTime;
@@ -28,13 +28,15 @@ public class FireBehaviourScript : MonoBehaviour
     private List<float> spreadTimes;
     private int currSpreadIdx = 0;
 
+    private const int grassTerrainLayer = 0;
     private const int burntTerrainLayer = 4;
-    private const int burnExtents = 2;
+    private const int burnExtents = 3;
 
     void Start()
     {
         gameObject.name = "Fire (tree " + treeIndex + ")";
         transform.position = tg.Tree2Pos(treeIndex);
+        minDestroyTime = maxSpreadTime;
         destroyTime = Random.Range(minDestroyTime, maxDestroyTime);
 
         startTime = Time.time;
@@ -58,33 +60,32 @@ public class FireBehaviourScript : MonoBehaviour
         float elapsedTime = Time.time - startTime;
         if (elapsedTime > minSpreadTime && elapsedTime < maxSpreadTime)
         {
-            while (currSpreadIdx < spreadTimes.Count && elapsedTime > spreadTimes[currSpreadIdx])
-            {
-                SpreadFire(treesToSpread[currSpreadIdx]);
-                currSpreadIdx++;
-            }
+            SpreadFire();
         }
-        else if (elapsedTime > destroyTime)
+        if (elapsedTime > destroyTime)
         {
             SetTreeDead();
+            DestroyFire();
         }
     }
 
-    // Spread fire to tree index
-    void SpreadFire(int index)
+    // Spread fire to neighbouring trees at random times defined by spreadTimes
+    void SpreadFire()
     {
-        // spread fire to next tree if it is Alive and close enough
-        // Do we want to spread to only one tree are all trees within maxSpreadDistance?
-        // Maybe we can have some randomness in spreading
-        //List<int> treeList = tg.GetDirectNeighbours(treeIndex);
+        float elapsedTime = Time.time - startTime;
 
-        if (tg.IsHealthy(index))
+        while (currSpreadIdx < spreadTimes.Count && elapsedTime > spreadTimes[currSpreadIdx])
         {
-            GameObject nextfire = Instantiate(firePrefab, transform.parent);
-            nextfire.GetComponent<FireBehaviourScript>().treeIndex = index;
-            nextfire.GetComponent<FireBehaviourScript>().td = td;
-            nextfire.GetComponent<FireBehaviourScript>().tg = tg;
-            tg.SetBurning(index);
+            int index = treesToSpread[currSpreadIdx];
+            if (tg.IsHealthy(index))
+            {
+                GameObject nextfire = Instantiate(firePrefab, transform.parent);
+                nextfire.GetComponent<FireBehaviourScript>().treeIndex = index;
+                nextfire.GetComponent<FireBehaviourScript>().td = td;
+                nextfire.GetComponent<FireBehaviourScript>().tg = tg;
+                tg.SetBurning(index);
+            }
+            currSpreadIdx++;
         }
     }
 
@@ -99,7 +100,7 @@ public class FireBehaviourScript : MonoBehaviour
         GameObject burnedTree = Instantiate(deadTree, transform.parent);
         burnedTree.transform.SetPositionAndRotation(tg.Tree2Pos(treeIndex), Quaternion.Euler(90, td.GetTreeInstance(treeIndex).rotation, 0));
 
-        // use rock terrainlayer for burnt
+        // Paint burnt spots
         Vector2Int alphamapCoord = Vector2Int.FloorToInt(tg.Tree2NormPos2D(treeIndex) * td.alphamapResolution);
         int burnXPlus = Mathf.Min(burnExtents, (td.alphamapResolution - 1) - alphamapCoord.x);
         int burnXMinus = Mathf.Min(burnExtents, alphamapCoord.x);
@@ -110,7 +111,8 @@ public class FireBehaviourScript : MonoBehaviour
         {
             for (int i = -burnXMinus; i <= burnXPlus; i++)
             {
-                modifiedAlphamap[i + burnXMinus, j + burnYMinus, burntTerrainLayer] += 1.75f / Mathf.Abs(i + j);
+                modifiedAlphamap[i + burnXMinus, j + burnYMinus, grassTerrainLayer] *= 0.2f * (i * i + j * j);
+                modifiedAlphamap[i + burnXMinus, j + burnYMinus, burntTerrainLayer] += 3.0f / (i*i + j*j + 1.0f);
             }
         }
         td.SetAlphamaps(alphamapCoord.x - burnXMinus, alphamapCoord.y - burnYMinus, modifiedAlphamap);
@@ -124,6 +126,7 @@ public class FireBehaviourScript : MonoBehaviour
         if (collision.gameObject.layer == SortingLayer.GetLayerValueFromName("Water"))
         {
             tg.SetHealthy(treeIndex);
+            SetTreeDead();
             DestroyFire();
         }
     }
