@@ -435,7 +435,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   td: {fileID: 15600000, guid: ad24286fd5bf1834cb299d94fa1f400a, type: 2}
-  firePrefab: {fileID: 2711317697429859945, guid: b29d3fd6d5163604fb723081d3a950dd, type: 3}
+  firePrefab: {fileID: 4317945129557785915, guid: 65edcf5861ecfec49a00c5ee5ef2c675, type: 3}
 --- !u!4 &697503845
 Transform:
   m_ObjectHideFlags: 0
