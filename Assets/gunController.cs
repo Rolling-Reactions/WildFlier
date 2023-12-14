@@ -5,8 +5,6 @@ using UnityEngine;
 public class GunController : MonoBehaviour
 {
     Gyroscope gyro;
-    public GameObject emitter1;
-    public GameObject emitter2;
     public GameObject waterBall;
     public Transform launchPoint;
     public float velocity = 10f;
@@ -19,8 +17,6 @@ public class GunController : MonoBehaviour
     }
     private void Start()
     {
-        emitter1.SetActive(false);
-        emitter2.SetActive(false);
     }
 
     void Update()
@@ -39,14 +35,10 @@ public class GunController : MonoBehaviour
         if (!charging) {
         FireProjectile();
         }
-        //emitter1.SetActive(true);
-        //emitter2.SetActive(true);
     }
     public void StopEmitter()
     {
         charging = false;
-        emitter1.SetActive(false);
-        emitter2.SetActive(false);
 
     }
     public void FireProjectile()

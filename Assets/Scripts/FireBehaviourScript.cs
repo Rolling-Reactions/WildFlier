@@ -68,7 +68,6 @@ public class FireBehaviourScript : MonoBehaviour
             DestroyFire();
         }
     }
-
     // Spread fire to neighbouring trees at random times defined by spreadTimes
     void SpreadFire()
     {
@@ -129,6 +128,8 @@ public class FireBehaviourScript : MonoBehaviour
             SetTreeDead();
             DestroyFire();
         }
+        Debug.Log("collision Tree");
+        SetTreeDead();
     }
 }
 /**/

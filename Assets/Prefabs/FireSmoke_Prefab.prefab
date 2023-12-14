@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5368372898642575875}
   - component: {fileID: 6335274991340755825}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Point_light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -105,7 +105,7 @@ GameObject:
   - component: {fileID: 6401318607522087550}
   - component: {fileID: 7688775468037614788}
   - component: {fileID: 5353303354890750476}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Embers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4935,9 +4935,9 @@ GameObject:
   - component: {fileID: 2987014899725213833}
   - component: {fileID: 2216850968571997734}
   - component: {fileID: -1876895029699152200}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: FireSmoke_Prefab
-  m_TagString: Untagged
+  m_TagString: Fire
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9766,7 +9766,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45c7373f3f260d342aab5dc22fa1ba07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  firePrefab: {fileID: 0}
+  FireSmoke_Prefab: {fileID: 4317945129557785915}
   deadTree: {fileID: 191266, guid: 65cf97976e5739845ba6063c1bf8aff4, type: 3}
   td: {fileID: 15600000, guid: ad24286fd5bf1834cb299d94fa1f400a, type: 2}
   treeIndex: 0
@@ -9782,7 +9782,7 @@ GameObject:
   - component: {fileID: 769274498998010531}
   - component: {fileID: 3161138362954376547}
   - component: {fileID: 6563544472728107831}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Smoke
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14610,7 +14610,7 @@ GameObject:
   - component: {fileID: 409347531944448548}
   - component: {fileID: 7580874174712991317}
   - component: {fileID: 8732947972588203673}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PS_Fire
   m_TagString: Untagged
   m_Icon: {fileID: 0}
