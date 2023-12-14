@@ -4,8 +4,9 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - firePrefab: {fileID: 2711317697429859945, guid: b29d3fd6d5163604fb723081d3a950dd, type: 3}
+  - FireSmoke_Prefab: {fileID: 4317945129557785915, guid: 65edcf5861ecfec49a00c5ee5ef2c675, type: 3}
   - deadTree: {fileID: 191266, guid: 65cf97976e5739845ba6063c1bf8aff4, type: 3}
+  - WaterVapor_Prefab: {fileID: 8913622650551686681, guid: babd4abd513da1e408ce66a5f188fa3c, type: 3}
   - td: {fileID: 15600000, guid: ad24286fd5bf1834cb299d94fa1f400a, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}

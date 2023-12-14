@@ -7,6 +7,7 @@ public class FireBehaviourScript : MonoBehaviour
 {
     public GameObject FireSmoke_Prefab;
     public GameObject deadTree;
+    public GameObject WaterVapor_Prefab;
 
     public TerrainData td;
     public TreeGrid tg;
@@ -128,6 +129,7 @@ public class FireBehaviourScript : MonoBehaviour
             tg.SetHealthy(treeIndex);
             SetTreeDead();
             DestroyFire();
+            GameObject waterVapor = Instantiate(WaterVapor_Prefab, transform);
         }
     }
 }

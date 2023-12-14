@@ -89,7 +89,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 1e-45, z: 0, w: 0}
+  m_BoundingSphereOverride: {x: 7.41e-43, y: -4.751181e-36, z: 7.41e-43, w: 0}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -9766,8 +9766,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45c7373f3f260d342aab5dc22fa1ba07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  firePrefab: {fileID: 0}
+  FireSmoke_Prefab: {fileID: 0}
   deadTree: {fileID: 191266, guid: 65cf97976e5739845ba6063c1bf8aff4, type: 3}
+  WaterVapor_Prefab: {fileID: 0}
   td: {fileID: 15600000, guid: ad24286fd5bf1834cb299d94fa1f400a, type: 2}
   treeIndex: 0
   destroyTime: 0
@@ -14610,6 +14611,7 @@ GameObject:
   - component: {fileID: 409347531944448548}
   - component: {fileID: 7580874174712991317}
   - component: {fileID: 8732947972588203673}
+  - component: {fileID: 5004755280829125317}
   m_Layer: 0
   m_Name: PS_Fire
   m_TagString: Untagged
@@ -19428,3 +19430,24 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!65 &5004755280829125317
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7807655586020743049}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 7, y: 7, z: 15}
+  m_Center: {x: 0, y: 0, z: 10.000002}
