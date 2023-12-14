@@ -15,10 +15,11 @@ public class gyro_control : MonoBehaviourPun
     public float angleSpeed = 2.0f;   // Speed of tilting
     public float maxAngle = 90.0f; // Maximum tilt angle
     public float moveSpeedMultiplier = 3.0f; // Speed multiplier based on tilt angle
-    public float smoothingFactor = 0.7f; // Adjust this factor for smoothing
+    public float smoothingFactor = 2.0f; // Adjust this factor for smoothing
     private float smoothTiltAngle = 0.0f;
     private float smoothRollAngle = 0.0f;
-
+    public float rotationSpeed = 5.0f;
+    private float direction = 0.0f;
 
     private Rigidbody rb;
     void Start()
@@ -49,24 +50,16 @@ public class gyro_control : MonoBehaviourPun
 
 
         float sensitivity = 0.75f;
-
+        direction = direction + tilt*0.8f;
         // Apply the rotation to the object
-        Quaternion targetRotation = Quaternion.Euler(roll * sensitivity, 0f, tilt * sensitivity);
+        Quaternion targetRotation = Quaternion.Euler(roll * sensitivity, -direction * sensitivity, 0F);
         transform.rotation = targetRotation;
-
-        //rb.AddForce(transform.forward * speed, ForceMode.Acceleration);
-
-
-        //rb.AddForce(transform.up * upSpeed, ForceMode.Acceleration);
-        //rb.velocity = Vector3.ClampMagnitude(rb.velocity, maxSpeed);
-
 
         smoothRollAngle = Mathf.Lerp(smoothRollAngle, roll, smoothingFactor * Time.deltaTime);
         smoothTiltAngle = Mathf.Lerp(smoothTiltAngle, tilt, smoothingFactor * Time.deltaTime);
 
-
         MoveLongitudinally(smoothRollAngle);
-        MoveSideways(smoothTiltAngle);
+        //MoveSideways(smoothTiltAngle);
         Debug.Log($"Received Gyroscope Data: x={roll}, y={tilt}");
     }
 
@@ -77,10 +70,7 @@ public class gyro_control : MonoBehaviourPun
         float speed = Mathf.Abs(tiltAngle) * moveSpeedMultiplier;
 
         transform.Translate(Vector3.left * lateralMovement * speed * Time.deltaTime, Space.World);
-
-        Quaternion targetRotation = Quaternion.Euler(0, 0, -tiltAngle);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, angleSpeed * Time.deltaTime);
-    }
+            }
     void MoveLongitudinally(float RollAngle)
     {
         float lateralMovement = RollAngle / maxAngle;
@@ -88,8 +78,6 @@ public class gyro_control : MonoBehaviourPun
         float speed = Mathf.Abs(RollAngle) * moveSpeedMultiplier;
 
         transform.Translate(Vector3.forward * lateralMovement * speed * Time.deltaTime, Space.World);
-
-        Quaternion targetRotation = Quaternion.Euler(0, 0, -RollAngle);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, angleSpeed * Time.deltaTime);
+        
     }
 }
