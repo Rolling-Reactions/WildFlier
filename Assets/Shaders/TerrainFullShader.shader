@@ -1,14 +1,16 @@
 // Upgrade NOTE: replaced 'defined FOG_COMBINED_WITH_WORLD_POS' with 'defined (FOG_COMBINED_WITH_WORLD_POS)'
 
-Shader "Custom/TerrainFullShader"
+Shader "Custom/TerrainShader"
 {
     Properties
     {
-        _Alphamap("Alphamap", 2D) = "white" {}
+        _Alphamap0("Alphamap0", 2D) = "white" {}
+        _Alphamap1("Alphamap1", 2D) = "white" {}
         _diffuse0("_diffuse0", 2D) = "white" {}
         _diffuse1("_diffuse1", 2D) = "white" {}
         _diffuse2("_diffuse2", 2D) = "white" {}
         _diffuse3("_diffuse3", 2D) = "white" {}
+        _diffuse4("_diffuse4", 2D) = "white" {}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
     }
@@ -63,7 +65,7 @@ CGPROGRAM
 // passes tangent-to-world matrix to pixel shader: no
 // reads from normal: no
 // 1 texcoords actually used
-//   float2 _Alphamap
+//   float2 _Alphamap0
 #include "UnityCG.cginc"
 #include "Lighting.cginc"
 #include "UnityPBSLighting.cginc"
@@ -74,7 +76,7 @@ CGPROGRAM
 #define WorldNormalVector(data,normal) normal
 
 // Original surface shader snippet:
-#line 12 ""
+#line 18 ""
 #ifdef DUMMY_PREPROCESSOR_TO_WORK_AROUND_HLSL_COMPILER_LINE_HANDLING
 #endif
 /* UNITY: Original start of shader */
@@ -83,17 +85,19 @@ CGPROGRAM
 
         // Use shader model 3.0 target, to get nicer looking lighting
         //#pragma target 3.0
-        sampler2D _Alphamap;        
+        sampler2D _Alphamap0;
+        sampler2D _Alphamap1;
 
         struct Input
         {
-            float2 uv_Alphamap;
+            float2 uv_Alphamap0;
         };
 
         sampler2D _diffuse0;
         sampler2D _diffuse1;
         sampler2D _diffuse2;
         sampler2D _diffuse3;
+        sampler2D _diffuse4;
         half _Glossiness;
         half _Metallic;
 
@@ -107,10 +111,11 @@ CGPROGRAM
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
             fixed4 c = fixed4(0, 0, 0, 0);
-            c += tex2D(_diffuse0, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).r;
-            c += tex2D(_diffuse1, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).g;
-            c += tex2D(_diffuse2, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).b;
-            c += tex2D(_diffuse3, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).a;
+            c += tex2D(_diffuse0, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).r;
+            c += tex2D(_diffuse1, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).g;
+            c += tex2D(_diffuse2, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).b;
+            c += tex2D(_diffuse3, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).a;
+            c += tex2D(_diffuse4, float2(0, 0)) * tex2D(_Alphamap1, IN.uv_Alphamap0).r;
             c /= c.a;
 
             o.Albedo = c.rgb;
@@ -129,7 +134,7 @@ CGPROGRAM
 #define FOG_COMBINED_WITH_WORLD_POS
 struct v2f_surf {
   UNITY_POSITION(pos);
-  float2 pack0 : TEXCOORD0; // _Alphamap
+  float2 pack0 : TEXCOORD0; // _Alphamap0
   float3 worldNormal : TEXCOORD1;
   float4 worldPos : TEXCOORD2;
   #if UNITY_SHOULD_SAMPLE_SH
@@ -147,7 +152,7 @@ struct v2f_surf {
 #ifndef UNITY_HALF_PRECISION_FRAGMENT_SHADER_REGISTERS
 struct v2f_surf {
   UNITY_POSITION(pos);
-  float2 pack0 : TEXCOORD0; // _Alphamap
+  float2 pack0 : TEXCOORD0; // _Alphamap0
   float3 worldNormal : TEXCOORD1;
   float3 worldPos : TEXCOORD2;
   #if UNITY_SHOULD_SAMPLE_SH
@@ -170,7 +175,7 @@ struct v2f_surf {
 #define FOG_COMBINED_WITH_WORLD_POS
 struct v2f_surf {
   UNITY_POSITION(pos);
-  float2 pack0 : TEXCOORD0; // _Alphamap
+  float2 pack0 : TEXCOORD0; // _Alphamap0
   float3 worldNormal : TEXCOORD1;
   float4 worldPos : TEXCOORD2;
   float4 lmap : TEXCOORD3;
@@ -183,7 +188,7 @@ struct v2f_surf {
 #ifndef UNITY_HALF_PRECISION_FRAGMENT_SHADER_REGISTERS
 struct v2f_surf {
   UNITY_POSITION(pos);
-  float2 pack0 : TEXCOORD0; // _Alphamap
+  float2 pack0 : TEXCOORD0; // _Alphamap0
   float3 worldNormal : TEXCOORD1;
   float3 worldPos : TEXCOORD2;
   float4 lmap : TEXCOORD3;
@@ -199,12 +204,7 @@ struct v2f_surf {
 };
 #endif
 #endif
-float4 _Alphamap_ST;
-
-float random(float2 uv)
-{
-    return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453123);
-}
+float4 _Alphamap0_ST;
 
 // vertex shader
 v2f_surf vert_surf (appdata_full v) {
@@ -214,7 +214,7 @@ v2f_surf vert_surf (appdata_full v) {
   UNITY_TRANSFER_INSTANCE_ID(v,o);
   UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
   o.pos = UnityObjectToClipPos(v.vertex);
-  o.pack0.xy = TRANSFORM_TEX(v.texcoord, _Alphamap);
+  o.pack0.xy = TRANSFORM_TEX(v.texcoord, _Alphamap0);
   float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
   float3 worldNormal = UnityObjectToWorldNormal(v.normal);
   #if defined(LIGHTMAP_ON) && defined(DIRLIGHTMAP_COMBINED)
@@ -262,8 +262,13 @@ v2f_surf vert_surf (appdata_full v) {
   return o;
 }
 
+float random(float2 uv)
+{
+    return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453123);
+}
+
 // fragment shader
-fixed4 frag_surf (v2f_surf IN, uint triangleID : SV_PrimitiveID) : SV_Target {
+fixed4 frag_surf(v2f_surf IN, uint triangleID : SV_PrimitiveID) : SV_Target{
   UNITY_SETUP_INSTANCE_ID(IN);
   UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
   // prepare and unpack data
@@ -276,8 +281,8 @@ fixed4 frag_surf (v2f_surf IN, uint triangleID : SV_PrimitiveID) : SV_Target {
     UNITY_EXTRACT_FOG(IN);
   #endif
   UNITY_INITIALIZE_OUTPUT(Input,surfIN);
-  surfIN.uv_Alphamap.x = 1.0;
-  surfIN.uv_Alphamap = IN.pack0.xy;
+  surfIN.uv_Alphamap0.x = 1.0;
+  surfIN.uv_Alphamap0 = IN.pack0.xy;
   float3 worldPos = IN.worldPos.xyz;
   #ifndef USING_DIRECTIONAL_LIGHT
     fixed3 lightDir = normalize(UnityWorldSpaceLightDir(worldPos));
@@ -299,8 +304,9 @@ fixed4 frag_surf (v2f_surf IN, uint triangleID : SV_PrimitiveID) : SV_Target {
   normalWorldVertex = IN.worldNormal;
 
   // call surface function
-  surf (surfIN, o);
+  surf(surfIN, o);
   o.Albedo *= (random(float2((triangleID), (triangleID) % 200)) + 2.0f) / 2.0f;
+
 
   // compute lighting & shadowing factor
   UNITY_LIGHT_ATTENUATION(atten, IN, worldPos)
@@ -375,7 +381,7 @@ fixed4 frag_surf (v2f_surf IN, uint triangleID : SV_PrimitiveID) : SV_Target {
 // passes tangent-to-world matrix to pixel shader: no
 // reads from normal: no
 // 1 texcoords actually used
-//   float2 _Alphamap
+//   float2 _Alphamap0
 #include "UnityCG.cginc"
 #include "Lighting.cginc"
 #include "UnityPBSLighting.cginc"
@@ -386,7 +392,7 @@ fixed4 frag_surf (v2f_surf IN, uint triangleID : SV_PrimitiveID) : SV_Target {
 #define WorldNormalVector(data,normal) normal
 
 // Original surface shader snippet:
-#line 12 ""
+#line 18 ""
 #ifdef DUMMY_PREPROCESSOR_TO_WORK_AROUND_HLSL_COMPILER_LINE_HANDLING
 #endif
 /* UNITY: Original start of shader */
@@ -395,17 +401,19 @@ fixed4 frag_surf (v2f_surf IN, uint triangleID : SV_PrimitiveID) : SV_Target {
 
         // Use shader model 3.0 target, to get nicer looking lighting
         //#pragma target 3.0
-        sampler2D _Alphamap;        
+        sampler2D _Alphamap0;
+        sampler2D _Alphamap1;
 
         struct Input
         {
-            float2 uv_Alphamap;
+            float2 uv_Alphamap0;
         };
 
         sampler2D _diffuse0;
         sampler2D _diffuse1;
         sampler2D _diffuse2;
         sampler2D _diffuse3;
+        sampler2D _diffuse4;
         half _Glossiness;
         half _Metallic;
 
@@ -419,10 +427,11 @@ fixed4 frag_surf (v2f_surf IN, uint triangleID : SV_PrimitiveID) : SV_Target {
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
             fixed4 c = fixed4(0, 0, 0, 0);
-            c += tex2D(_diffuse0, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).r;
-            c += tex2D(_diffuse1, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).g;
-            c += tex2D(_diffuse2, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).b;
-            c += tex2D(_diffuse3, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).a;
+            c += tex2D(_diffuse0, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).r;
+            c += tex2D(_diffuse1, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).g;
+            c += tex2D(_diffuse2, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).b;
+            c += tex2D(_diffuse3, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).a;
+            c += tex2D(_diffuse4, float2(0, 0)) * tex2D(_Alphamap1, IN.uv_Alphamap0).r;
             c /= c.a;
 
             o.Albedo = c.rgb;
@@ -441,7 +450,7 @@ fixed4 frag_surf (v2f_surf IN, uint triangleID : SV_PrimitiveID) : SV_Target {
 #define FOG_COMBINED_WITH_WORLD_POS
 struct v2f_surf {
   UNITY_POSITION(pos);
-  float2 pack0 : TEXCOORD0; // _Alphamap
+  float2 pack0 : TEXCOORD0; // _Alphamap0
   float3 worldNormal : TEXCOORD1;
   float4 worldPos : TEXCOORD2;
   #if UNITY_SHOULD_SAMPLE_SH
@@ -459,7 +468,7 @@ struct v2f_surf {
 #ifndef UNITY_HALF_PRECISION_FRAGMENT_SHADER_REGISTERS
 struct v2f_surf {
   UNITY_POSITION(pos);
-  float2 pack0 : TEXCOORD0; // _Alphamap
+  float2 pack0 : TEXCOORD0; // _Alphamap0
   float3 worldNormal : TEXCOORD1;
   float3 worldPos : TEXCOORD2;
   #if UNITY_SHOULD_SAMPLE_SH
@@ -482,7 +491,7 @@ struct v2f_surf {
 #define FOG_COMBINED_WITH_WORLD_POS
 struct v2f_surf {
   UNITY_POSITION(pos);
-  float2 pack0 : TEXCOORD0; // _Alphamap
+  float2 pack0 : TEXCOORD0; // _Alphamap0
   float3 worldNormal : TEXCOORD1;
   float4 worldPos : TEXCOORD2;
   float4 lmap : TEXCOORD3;
@@ -495,7 +504,7 @@ struct v2f_surf {
 #ifndef UNITY_HALF_PRECISION_FRAGMENT_SHADER_REGISTERS
 struct v2f_surf {
   UNITY_POSITION(pos);
-  float2 pack0 : TEXCOORD0; // _Alphamap
+  float2 pack0 : TEXCOORD0; // _Alphamap0
   float3 worldNormal : TEXCOORD1;
   float3 worldPos : TEXCOORD2;
   float4 lmap : TEXCOORD3;
@@ -511,7 +520,7 @@ struct v2f_surf {
 };
 #endif
 #endif
-float4 _Alphamap_ST;
+float4 _Alphamap0_ST;
 
 // vertex shader
 v2f_surf vert_surf (appdata_full v) {
@@ -521,7 +530,7 @@ v2f_surf vert_surf (appdata_full v) {
   UNITY_TRANSFER_INSTANCE_ID(v,o);
   UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
   o.pos = UnityObjectToClipPos(v.vertex);
-  o.pack0.xy = TRANSFORM_TEX(v.texcoord, _Alphamap);
+  o.pack0.xy = TRANSFORM_TEX(v.texcoord, _Alphamap0);
   float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
   float3 worldNormal = UnityObjectToWorldNormal(v.normal);
   #if defined(LIGHTMAP_ON) && defined(DIRLIGHTMAP_COMBINED)
@@ -583,8 +592,8 @@ fixed4 frag_surf (v2f_surf IN) : SV_Target {
     UNITY_EXTRACT_FOG(IN);
   #endif
   UNITY_INITIALIZE_OUTPUT(Input,surfIN);
-  surfIN.uv_Alphamap.x = 1.0;
-  surfIN.uv_Alphamap = IN.pack0.xy;
+  surfIN.uv_Alphamap0.x = 1.0;
+  surfIN.uv_Alphamap0 = IN.pack0.xy;
   float3 worldPos = IN.worldPos.xyz;
   #ifndef USING_DIRECTIONAL_LIGHT
     fixed3 lightDir = normalize(UnityWorldSpaceLightDir(worldPos));
@@ -708,7 +717,7 @@ CGPROGRAM
 // passes tangent-to-world matrix to pixel shader: no
 // reads from normal: no
 // 1 texcoords actually used
-//   float2 _Alphamap
+//   float2 _Alphamap0
 #include "UnityCG.cginc"
 #include "Lighting.cginc"
 #include "UnityPBSLighting.cginc"
@@ -719,7 +728,7 @@ CGPROGRAM
 #define WorldNormalVector(data,normal) normal
 
 // Original surface shader snippet:
-#line 12 ""
+#line 18 ""
 #ifdef DUMMY_PREPROCESSOR_TO_WORK_AROUND_HLSL_COMPILER_LINE_HANDLING
 #endif
 /* UNITY: Original start of shader */
@@ -728,17 +737,19 @@ CGPROGRAM
 
         // Use shader model 3.0 target, to get nicer looking lighting
         //#pragma target 3.0
-        sampler2D _Alphamap;        
+        sampler2D _Alphamap0;
+        sampler2D _Alphamap1;
 
         struct Input
         {
-            float2 uv_Alphamap;
+            float2 uv_Alphamap0;
         };
 
         sampler2D _diffuse0;
         sampler2D _diffuse1;
         sampler2D _diffuse2;
         sampler2D _diffuse3;
+        sampler2D _diffuse4;
         half _Glossiness;
         half _Metallic;
 
@@ -752,10 +763,11 @@ CGPROGRAM
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
             fixed4 c = fixed4(0, 0, 0, 0);
-            c += tex2D(_diffuse0, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).r;
-            c += tex2D(_diffuse1, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).g;
-            c += tex2D(_diffuse2, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).b;
-            c += tex2D(_diffuse3, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).a;
+            c += tex2D(_diffuse0, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).r;
+            c += tex2D(_diffuse1, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).g;
+            c += tex2D(_diffuse2, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).b;
+            c += tex2D(_diffuse3, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).a;
+            c += tex2D(_diffuse4, float2(0, 0)) * tex2D(_Alphamap1, IN.uv_Alphamap0).r;
             c /= c.a;
 
             o.Albedo = c.rgb;
@@ -769,7 +781,7 @@ CGPROGRAM
 // vertex-to-fragment interpolation data
 struct v2f_surf {
   UNITY_POSITION(pos);
-  float2 pack0 : TEXCOORD0; // _Alphamap
+  float2 pack0 : TEXCOORD0; // _Alphamap0
   float3 worldNormal : TEXCOORD1;
   float3 worldPos : TEXCOORD2;
   UNITY_LIGHTING_COORDS(3,4)
@@ -777,7 +789,7 @@ struct v2f_surf {
   UNITY_VERTEX_INPUT_INSTANCE_ID
   UNITY_VERTEX_OUTPUT_STEREO
 };
-float4 _Alphamap_ST;
+float4 _Alphamap0_ST;
 
 // vertex shader
 v2f_surf vert_surf (appdata_full v) {
@@ -787,7 +799,7 @@ v2f_surf vert_surf (appdata_full v) {
   UNITY_TRANSFER_INSTANCE_ID(v,o);
   UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
   o.pos = UnityObjectToClipPos(v.vertex);
-  o.pack0.xy = TRANSFORM_TEX(v.texcoord, _Alphamap);
+  o.pack0.xy = TRANSFORM_TEX(v.texcoord, _Alphamap0);
   float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
   float3 worldNormal = UnityObjectToWorldNormal(v.normal);
   o.worldPos.xyz = worldPos;
@@ -812,8 +824,8 @@ fixed4 frag_surf (v2f_surf IN) : SV_Target {
     UNITY_EXTRACT_FOG(IN);
   #endif
   UNITY_INITIALIZE_OUTPUT(Input,surfIN);
-  surfIN.uv_Alphamap.x = 1.0;
-  surfIN.uv_Alphamap = IN.pack0.xy;
+  surfIN.uv_Alphamap0.x = 1.0;
+  surfIN.uv_Alphamap0 = IN.pack0.xy;
   float3 worldPos = IN.worldPos.xyz;
   #ifndef USING_DIRECTIONAL_LIGHT
     fixed3 lightDir = normalize(UnityWorldSpaceLightDir(worldPos));
@@ -904,7 +916,7 @@ CGPROGRAM
 // passes tangent-to-world matrix to pixel shader: no
 // reads from normal: YES
 // 1 texcoords actually used
-//   float2 _Alphamap
+//   float2 _Alphamap0
 #include "UnityCG.cginc"
 #include "Lighting.cginc"
 #include "UnityPBSLighting.cginc"
@@ -914,7 +926,7 @@ CGPROGRAM
 #define WorldNormalVector(data,normal) normal
 
 // Original surface shader snippet:
-#line 12 ""
+#line 18 ""
 #ifdef DUMMY_PREPROCESSOR_TO_WORK_AROUND_HLSL_COMPILER_LINE_HANDLING
 #endif
 /* UNITY: Original start of shader */
@@ -923,17 +935,19 @@ CGPROGRAM
 
         // Use shader model 3.0 target, to get nicer looking lighting
         //#pragma target 3.0
-        sampler2D _Alphamap;        
+        sampler2D _Alphamap0;
+        sampler2D _Alphamap1;
 
         struct Input
         {
-            float2 uv_Alphamap;
+            float2 uv_Alphamap0;
         };
 
         sampler2D _diffuse0;
         sampler2D _diffuse1;
         sampler2D _diffuse2;
         sampler2D _diffuse3;
+        sampler2D _diffuse4;
         half _Glossiness;
         half _Metallic;
 
@@ -947,10 +961,11 @@ CGPROGRAM
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
             fixed4 c = fixed4(0, 0, 0, 0);
-            c += tex2D(_diffuse0, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).r;
-            c += tex2D(_diffuse1, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).g;
-            c += tex2D(_diffuse2, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).b;
-            c += tex2D(_diffuse3, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).a;
+            c += tex2D(_diffuse0, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).r;
+            c += tex2D(_diffuse1, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).g;
+            c += tex2D(_diffuse2, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).b;
+            c += tex2D(_diffuse3, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).a;
+            c += tex2D(_diffuse4, float2(0, 0)) * tex2D(_Alphamap1, IN.uv_Alphamap0).r;
             c /= c.a;
 
             o.Albedo = c.rgb;
@@ -964,7 +979,7 @@ CGPROGRAM
 // vertex-to-fragment interpolation data
 struct v2f_surf {
   UNITY_POSITION(pos);
-  float2 pack0 : TEXCOORD0; // _Alphamap
+  float2 pack0 : TEXCOORD0; // _Alphamap0
   float3 worldNormal : TEXCOORD1;
   float3 worldPos : TEXCOORD2;
 #ifndef DIRLIGHTMAP_OFF
@@ -983,7 +998,7 @@ struct v2f_surf {
   UNITY_VERTEX_INPUT_INSTANCE_ID
   UNITY_VERTEX_OUTPUT_STEREO
 };
-float4 _Alphamap_ST;
+float4 _Alphamap0_ST;
 
 // vertex shader
 v2f_surf vert_surf (appdata_full v) {
@@ -993,7 +1008,7 @@ v2f_surf vert_surf (appdata_full v) {
   UNITY_TRANSFER_INSTANCE_ID(v,o);
   UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
   o.pos = UnityObjectToClipPos(v.vertex);
-  o.pack0.xy = TRANSFORM_TEX(v.texcoord, _Alphamap);
+  o.pack0.xy = TRANSFORM_TEX(v.texcoord, _Alphamap0);
   float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
   float3 worldNormal = UnityObjectToWorldNormal(v.normal);
   o.worldPos.xyz = worldPos;
@@ -1049,8 +1064,8 @@ void frag_surf (v2f_surf IN,
     UNITY_EXTRACT_FOG(IN);
   #endif
   UNITY_INITIALIZE_OUTPUT(Input,surfIN);
-  surfIN.uv_Alphamap.x = 1.0;
-  surfIN.uv_Alphamap = IN.pack0.xy;
+  surfIN.uv_Alphamap0.x = 1.0;
+  surfIN.uv_Alphamap0 = IN.pack0.xy;
   float3 worldPos = IN.worldPos.xyz;
   #ifndef USING_DIRECTIONAL_LIGHT
     fixed3 lightDir = normalize(UnityWorldSpaceLightDir(worldPos));
@@ -1148,7 +1163,7 @@ fixed3 originalNormal = o.Normal;
 // passes tangent-to-world matrix to pixel shader: no
 // reads from normal: YES
 // 1 texcoords actually used
-//   float2 _Alphamap
+//   float2 _Alphamap0
 #include "UnityCG.cginc"
 #include "Lighting.cginc"
 #include "UnityPBSLighting.cginc"
@@ -1158,7 +1173,7 @@ fixed3 originalNormal = o.Normal;
 #define WorldNormalVector(data,normal) normal
 
 // Original surface shader snippet:
-#line 12 ""
+#line 18 ""
 #ifdef DUMMY_PREPROCESSOR_TO_WORK_AROUND_HLSL_COMPILER_LINE_HANDLING
 #endif
 /* UNITY: Original start of shader */
@@ -1167,17 +1182,19 @@ fixed3 originalNormal = o.Normal;
 
         // Use shader model 3.0 target, to get nicer looking lighting
         //#pragma target 3.0
-        sampler2D _Alphamap;        
+        sampler2D _Alphamap0;
+        sampler2D _Alphamap1;
 
         struct Input
         {
-            float2 uv_Alphamap;
+            float2 uv_Alphamap0;
         };
 
         sampler2D _diffuse0;
         sampler2D _diffuse1;
         sampler2D _diffuse2;
         sampler2D _diffuse3;
+        sampler2D _diffuse4;
         half _Glossiness;
         half _Metallic;
 
@@ -1191,10 +1208,11 @@ fixed3 originalNormal = o.Normal;
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
             fixed4 c = fixed4(0, 0, 0, 0);
-            c += tex2D(_diffuse0, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).r;
-            c += tex2D(_diffuse1, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).g;
-            c += tex2D(_diffuse2, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).b;
-            c += tex2D(_diffuse3, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).a;
+            c += tex2D(_diffuse0, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).r;
+            c += tex2D(_diffuse1, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).g;
+            c += tex2D(_diffuse2, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).b;
+            c += tex2D(_diffuse3, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).a;
+            c += tex2D(_diffuse4, float2(0, 0)) * tex2D(_Alphamap1, IN.uv_Alphamap0).r;
             c /= c.a;
 
             o.Albedo = c.rgb;
@@ -1208,7 +1226,7 @@ fixed3 originalNormal = o.Normal;
 // vertex-to-fragment interpolation data
 struct v2f_surf {
   UNITY_POSITION(pos);
-  float2 pack0 : TEXCOORD0; // _Alphamap
+  float2 pack0 : TEXCOORD0; // _Alphamap0
   float3 worldNormal : TEXCOORD1;
   float3 worldPos : TEXCOORD2;
 #ifndef DIRLIGHTMAP_OFF
@@ -1227,7 +1245,7 @@ struct v2f_surf {
   UNITY_VERTEX_INPUT_INSTANCE_ID
   UNITY_VERTEX_OUTPUT_STEREO
 };
-float4 _Alphamap_ST;
+float4 _Alphamap0_ST;
 
 // vertex shader
 v2f_surf vert_surf (appdata_full v) {
@@ -1237,7 +1255,7 @@ v2f_surf vert_surf (appdata_full v) {
   UNITY_TRANSFER_INSTANCE_ID(v,o);
   UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
   o.pos = UnityObjectToClipPos(v.vertex);
-  o.pack0.xy = TRANSFORM_TEX(v.texcoord, _Alphamap);
+  o.pack0.xy = TRANSFORM_TEX(v.texcoord, _Alphamap0);
   float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
   float3 worldNormal = UnityObjectToWorldNormal(v.normal);
   o.worldPos.xyz = worldPos;
@@ -1293,8 +1311,8 @@ void frag_surf (v2f_surf IN,
     UNITY_EXTRACT_FOG(IN);
   #endif
   UNITY_INITIALIZE_OUTPUT(Input,surfIN);
-  surfIN.uv_Alphamap.x = 1.0;
-  surfIN.uv_Alphamap = IN.pack0.xy;
+  surfIN.uv_Alphamap0.x = 1.0;
+  surfIN.uv_Alphamap0 = IN.pack0.xy;
   float3 worldPos = IN.worldPos.xyz;
   #ifndef USING_DIRECTIONAL_LIGHT
     fixed3 lightDir = normalize(UnityWorldSpaceLightDir(worldPos));
@@ -1419,7 +1437,7 @@ CGPROGRAM
 // passes tangent-to-world matrix to pixel shader: no
 // reads from normal: no
 // 1 texcoords actually used
-//   float2 _Alphamap
+//   float2 _Alphamap0
 #include "UnityCG.cginc"
 #include "Lighting.cginc"
 #include "UnityPBSLighting.cginc"
@@ -1429,7 +1447,7 @@ CGPROGRAM
 #define WorldNormalVector(data,normal) normal
 
 // Original surface shader snippet:
-#line 12 ""
+#line 18 ""
 #ifdef DUMMY_PREPROCESSOR_TO_WORK_AROUND_HLSL_COMPILER_LINE_HANDLING
 #endif
 /* UNITY: Original start of shader */
@@ -1438,17 +1456,19 @@ CGPROGRAM
 
         // Use shader model 3.0 target, to get nicer looking lighting
         //#pragma target 3.0
-        sampler2D _Alphamap;        
+        sampler2D _Alphamap0;
+        sampler2D _Alphamap1;
 
         struct Input
         {
-            float2 uv_Alphamap;
+            float2 uv_Alphamap0;
         };
 
         sampler2D _diffuse0;
         sampler2D _diffuse1;
         sampler2D _diffuse2;
         sampler2D _diffuse3;
+        sampler2D _diffuse4;
         half _Glossiness;
         half _Metallic;
 
@@ -1462,10 +1482,11 @@ CGPROGRAM
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
             fixed4 c = fixed4(0, 0, 0, 0);
-            c += tex2D(_diffuse0, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).r;
-            c += tex2D(_diffuse1, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).g;
-            c += tex2D(_diffuse2, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).b;
-            c += tex2D(_diffuse3, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).a;
+            c += tex2D(_diffuse0, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).r;
+            c += tex2D(_diffuse1, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).g;
+            c += tex2D(_diffuse2, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).b;
+            c += tex2D(_diffuse3, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).a;
+            c += tex2D(_diffuse4, float2(0, 0)) * tex2D(_Alphamap1, IN.uv_Alphamap0).r;
             c /= c.a;
 
             o.Albedo = c.rgb;
@@ -1480,7 +1501,7 @@ CGPROGRAM
 // vertex-to-fragment interpolation data
 struct v2f_surf {
   UNITY_POSITION(pos);
-  float2 pack0 : TEXCOORD0; // _Alphamap
+  float2 pack0 : TEXCOORD0; // _Alphamap0
   float3 worldPos : TEXCOORD1;
 #ifdef EDITOR_VISUALIZATION
   float2 vizUV : TEXCOORD2;
@@ -1489,7 +1510,7 @@ struct v2f_surf {
   UNITY_VERTEX_INPUT_INSTANCE_ID
   UNITY_VERTEX_OUTPUT_STEREO
 };
-float4 _Alphamap_ST;
+float4 _Alphamap0_ST;
 
 // vertex shader
 v2f_surf vert_surf (appdata_full v) {
@@ -1510,7 +1531,7 @@ v2f_surf vert_surf (appdata_full v) {
     o.lightCoord = mul(unity_EditorViz_WorldToLight, mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1)));
   }
 #endif
-  o.pack0.xy = TRANSFORM_TEX(v.texcoord, _Alphamap);
+  o.pack0.xy = TRANSFORM_TEX(v.texcoord, _Alphamap0);
   float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
   float3 worldNormal = UnityObjectToWorldNormal(v.normal);
   o.worldPos.xyz = worldPos;
@@ -1531,8 +1552,8 @@ fixed4 frag_surf (v2f_surf IN) : SV_Target {
     UNITY_EXTRACT_FOG(IN);
   #endif
   UNITY_INITIALIZE_OUTPUT(Input,surfIN);
-  surfIN.uv_Alphamap.x = 1.0;
-  surfIN.uv_Alphamap = IN.pack0.xy;
+  surfIN.uv_Alphamap0.x = 1.0;
+  surfIN.uv_Alphamap0 = IN.pack0.xy;
   float3 worldPos = IN.worldPos.xyz;
   #ifndef USING_DIRECTIONAL_LIGHT
     fixed3 lightDir = normalize(UnityWorldSpaceLightDir(worldPos));
@@ -1587,7 +1608,7 @@ fixed4 frag_surf (v2f_surf IN) : SV_Target {
 // passes tangent-to-world matrix to pixel shader: no
 // reads from normal: no
 // 1 texcoords actually used
-//   float2 _Alphamap
+//   float2 _Alphamap0
 #include "UnityCG.cginc"
 #include "Lighting.cginc"
 #include "UnityPBSLighting.cginc"
@@ -1597,7 +1618,7 @@ fixed4 frag_surf (v2f_surf IN) : SV_Target {
 #define WorldNormalVector(data,normal) normal
 
 // Original surface shader snippet:
-#line 12 ""
+#line 18 ""
 #ifdef DUMMY_PREPROCESSOR_TO_WORK_AROUND_HLSL_COMPILER_LINE_HANDLING
 #endif
 /* UNITY: Original start of shader */
@@ -1606,17 +1627,19 @@ fixed4 frag_surf (v2f_surf IN) : SV_Target {
 
         // Use shader model 3.0 target, to get nicer looking lighting
         //#pragma target 3.0
-        sampler2D _Alphamap;        
+        sampler2D _Alphamap0;
+        sampler2D _Alphamap1;
 
         struct Input
         {
-            float2 uv_Alphamap;
+            float2 uv_Alphamap0;
         };
 
         sampler2D _diffuse0;
         sampler2D _diffuse1;
         sampler2D _diffuse2;
         sampler2D _diffuse3;
+        sampler2D _diffuse4;
         half _Glossiness;
         half _Metallic;
 
@@ -1630,10 +1653,11 @@ fixed4 frag_surf (v2f_surf IN) : SV_Target {
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
             fixed4 c = fixed4(0, 0, 0, 0);
-            c += tex2D(_diffuse0, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).r;
-            c += tex2D(_diffuse1, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).g;
-            c += tex2D(_diffuse2, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).b;
-            c += tex2D(_diffuse3, float2(0, 0)) * tex2D(_Alphamap, IN.uv_Alphamap).a;
+            c += tex2D(_diffuse0, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).r;
+            c += tex2D(_diffuse1, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).g;
+            c += tex2D(_diffuse2, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).b;
+            c += tex2D(_diffuse3, float2(0, 0)) * tex2D(_Alphamap0, IN.uv_Alphamap0).a;
+            c += tex2D(_diffuse4, float2(0, 0)) * tex2D(_Alphamap1, IN.uv_Alphamap0).r;
             c /= c.a;
 
             o.Albedo = c.rgb;
@@ -1648,7 +1672,7 @@ fixed4 frag_surf (v2f_surf IN) : SV_Target {
 // vertex-to-fragment interpolation data
 struct v2f_surf {
   UNITY_POSITION(pos);
-  float2 pack0 : TEXCOORD0; // _Alphamap
+  float2 pack0 : TEXCOORD0; // _Alphamap0
   float3 worldPos : TEXCOORD1;
 #ifdef EDITOR_VISUALIZATION
   float2 vizUV : TEXCOORD2;
@@ -1657,7 +1681,7 @@ struct v2f_surf {
   UNITY_VERTEX_INPUT_INSTANCE_ID
   UNITY_VERTEX_OUTPUT_STEREO
 };
-float4 _Alphamap_ST;
+float4 _Alphamap0_ST;
 
 // vertex shader
 v2f_surf vert_surf (appdata_full v) {
@@ -1678,7 +1702,7 @@ v2f_surf vert_surf (appdata_full v) {
     o.lightCoord = mul(unity_EditorViz_WorldToLight, mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1)));
   }
 #endif
-  o.pack0.xy = TRANSFORM_TEX(v.texcoord, _Alphamap);
+  o.pack0.xy = TRANSFORM_TEX(v.texcoord, _Alphamap0);
   float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
   float3 worldNormal = UnityObjectToWorldNormal(v.normal);
   o.worldPos.xyz = worldPos;
@@ -1699,8 +1723,8 @@ fixed4 frag_surf (v2f_surf IN) : SV_Target {
     UNITY_EXTRACT_FOG(IN);
   #endif
   UNITY_INITIALIZE_OUTPUT(Input,surfIN);
-  surfIN.uv_Alphamap.x = 1.0;
-  surfIN.uv_Alphamap = IN.pack0.xy;
+  surfIN.uv_Alphamap0.x = 1.0;
+  surfIN.uv_Alphamap0 = IN.pack0.xy;
   float3 worldPos = IN.worldPos.xyz;
   #ifndef USING_DIRECTIONAL_LIGHT
     fixed3 lightDir = normalize(UnityWorldSpaceLightDir(worldPos));
@@ -1741,7 +1765,7 @@ ENDCG
 
 	// ---- end of surface shader generated code
 
-#LINE 56
+#LINE 65
 
     }
     FallBack "Diffuse"
