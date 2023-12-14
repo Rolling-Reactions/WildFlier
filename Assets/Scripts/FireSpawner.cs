@@ -7,7 +7,7 @@ public class FireSpawner : MonoBehaviour
     private TreeGrid tg;
     public TerrainData td;
     private TreeInstance[] trees;
-    public GameObject firePrefab;
+    public GameObject FireSmoke_Prefab;
 
     // Start is called before the first frame update
     void Start()
@@ -16,7 +16,7 @@ public class FireSpawner : MonoBehaviour
 
         // Choose a random tree to start the fire
         int randomTree = Random.Range(0, td.treeInstanceCount);
-        GameObject fire = Instantiate(firePrefab, transform);
+        GameObject fire = Instantiate(FireSmoke_Prefab, transform);
         fire.GetComponent<FireBehaviourScript>().treeIndex = randomTree;
         fire.GetComponent<FireBehaviourScript>().td = td;
         fire.GetComponent<FireBehaviourScript>().tg = tg;

@@ -4843,7 +4843,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45c7373f3f260d342aab5dc22fa1ba07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  firePrefab: {fileID: 2711317697429859945}
+  FireSmoke_Prefab: {fileID: 2711317697429859945}
   deadTree: {fileID: 191266, guid: 65cf97976e5739845ba6063c1bf8aff4, type: 3}
   td: {fileID: 15600000, guid: ad24286fd5bf1834cb299d94fa1f400a, type: 2}
   treeIndex: 0

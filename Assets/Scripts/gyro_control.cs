@@ -20,6 +20,7 @@ public class gyro_control : MonoBehaviourPun
     private float smoothRollAngle = 0.0f;
     public float rotationSpeed = 5.0f;
     private float direction = 0.0f;
+    public GameObject HelicopterDir;
 
     private Rigidbody rb;
     void Start()
@@ -58,7 +59,7 @@ public class gyro_control : MonoBehaviourPun
         smoothRollAngle = Mathf.Lerp(smoothRollAngle, roll, smoothingFactor * Time.deltaTime);
         smoothTiltAngle = Mathf.Lerp(smoothTiltAngle, tilt, smoothingFactor * Time.deltaTime);
 
-        MoveLongitudinally(smoothRollAngle);
+        MoveLongitudinally(smoothRollAngle, roll);
         //MoveSideways(smoothTiltAngle);
         Debug.Log($"Received Gyroscope Data: x={roll}, y={tilt}");
     }
@@ -71,13 +72,17 @@ public class gyro_control : MonoBehaviourPun
 
         transform.Translate(Vector3.left * lateralMovement * speed * Time.deltaTime, Space.World);
             }
-    void MoveLongitudinally(float RollAngle)
+    void MoveLongitudinally(float RollAngle, float xRot)
     {
-        float lateralMovement = RollAngle / maxAngle;
+        HelicopterDir.transform.eulerAngles = new Vector3(0, HelicopterDir.transform.eulerAngles.y, HelicopterDir.transform.eulerAngles.z);
+        float lateralMovement = RollAngle / maxAngle; 
+        Debug.Log(RollAngle);
 
         float speed = Mathf.Abs(RollAngle) * moveSpeedMultiplier;
 
-        transform.Translate(Vector3.forward * lateralMovement * speed * Time.deltaTime, Space.World);
-        
+        //transform.Translate(HelicopterDir.transform.forward * speed * Time.deltaTime, Space.Self);
+
+            rb.AddForce(HelicopterDir.transform.forward * xRot * lateralMovement * 1000 * Time.deltaTime);
+
     }
 }

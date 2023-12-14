@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class FireBehaviourScript : MonoBehaviour
 {
-    public GameObject firePrefab;
+    public GameObject FireSmoke_Prefab;
     public GameObject deadTree;
 
     public TerrainData td;
@@ -68,7 +68,6 @@ public class FireBehaviourScript : MonoBehaviour
             DestroyFire();
         }
     }
-
     // Spread fire to neighbouring trees at random times defined by spreadTimes
     void SpreadFire()
     {
@@ -79,7 +78,7 @@ public class FireBehaviourScript : MonoBehaviour
             int index = treesToSpread[currSpreadIdx];
             if (tg.IsHealthy(index))
             {
-                GameObject nextfire = Instantiate(firePrefab, transform.parent);
+                GameObject nextfire = Instantiate(FireSmoke_Prefab, transform.parent);
                 nextfire.GetComponent<FireBehaviourScript>().treeIndex = index;
                 nextfire.GetComponent<FireBehaviourScript>().td = td;
                 nextfire.GetComponent<FireBehaviourScript>().tg = tg;
@@ -129,6 +128,8 @@ public class FireBehaviourScript : MonoBehaviour
             SetTreeDead();
             DestroyFire();
         }
+        Debug.Log("collision Tree");
+        SetTreeDead();
     }
 }
 /**/

@@ -35,10 +35,10 @@ MonoBehaviour:
   StartInOfflineMode: 0
   RpcList:
   - ClickRpc
+  - RespawnSpaceship
   - DestroyRpc
   - DestroySpaceship
   - Fire
-  - ReceiveAccelerometerData
   - RespawnSpaceship
   DisableAutoOpenWizard: 1
   ShowSettings: 0
