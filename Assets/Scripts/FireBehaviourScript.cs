@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class FireBehaviourScript : MonoBehaviour
 {
-    public GameObject firePrefab;
+    public GameObject FireSmoke_Prefab;
     public GameObject deadTree;
 
     public TerrainData td;
@@ -79,7 +79,7 @@ public class FireBehaviourScript : MonoBehaviour
             int index = treesToSpread[currSpreadIdx];
             if (tg.IsHealthy(index))
             {
-                GameObject nextfire = Instantiate(firePrefab, transform.parent);
+                GameObject nextfire = Instantiate(FireSmoke_Prefab, transform.parent);
                 nextfire.GetComponent<FireBehaviourScript>().treeIndex = index;
                 nextfire.GetComponent<FireBehaviourScript>().td = td;
                 nextfire.GetComponent<FireBehaviourScript>().tg = tg;
