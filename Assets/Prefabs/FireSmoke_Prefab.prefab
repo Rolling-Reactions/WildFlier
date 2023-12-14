@@ -4934,8 +4934,9 @@ GameObject:
   - component: {fileID: 3013042580798658030}
   - component: {fileID: 2987014899725213833}
   - component: {fileID: 2216850968571997734}
+  - component: {fileID: -1876895029699152200}
   m_Layer: 0
-  m_Name: Fire+Smoke_Prefab
+  m_Name: FireSmoke_Prefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9753,6 +9754,23 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &-1876895029699152200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4317945129557785915}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45c7373f3f260d342aab5dc22fa1ba07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  firePrefab: {fileID: 0}
+  deadTree: {fileID: 191266, guid: 65cf97976e5739845ba6063c1bf8aff4, type: 3}
+  td: {fileID: 15600000, guid: ad24286fd5bf1834cb299d94fa1f400a, type: 2}
+  treeIndex: 0
+  destroyTime: 0
 --- !u!1 &4419494199197602812
 GameObject:
   m_ObjectHideFlags: 0
