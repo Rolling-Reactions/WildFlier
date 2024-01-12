@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 9bc71d4693efb4b399c9311564ea16ff
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - timerText: {instanceID: 0}
+  - restartTimerText: {instanceID: 0}
+  - helicopter: {fileID: 3518181859638503542, guid: 67309d7da541692409d4311c00e74b42, type: 3}
+  - restartPoint: {instanceID: 0}
+  - cameraTempDestroy: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
